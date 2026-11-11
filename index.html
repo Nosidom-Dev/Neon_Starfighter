@@ -134,7 +134,7 @@
       align-items: center;
       text-align: center;
       padding: 24px;
-      z-index: 10;
+      z-index: 20;
     }
     h1 {
       font-size: 38px;
@@ -155,7 +155,7 @@
     button {
       background: linear-gradient(135deg, #00f0ff, #0077ff);
       border: none;
-      padding: 16px 42px;
+      padding: 18px 44px;
       color: #040509;
       font-size: 18px;
       font-weight: 900;
@@ -180,9 +180,7 @@
       max-width: 440px;
       margin: 0 auto;
     }
-    #legalFooter strong {
-      color: #94a3b8;
-    }
+    #legalFooter strong { color: #94a3b8; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -220,8 +218,10 @@
   </div>
 
   <script>
-    // Copyright (c) 2026 Nosidom-Dev. All Rights Reserved.
-    // Unauthorized copying, re-uploading, or redistribution without permission is prohibited.
+    window.onerror = function(msg, url, line) {
+      alert('Game error on line ' + line + ': ' + msg);
+    };
+
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
@@ -241,22 +241,24 @@
 
     let audioCtx = null;
     function initAudio() {
-      if (!audioCtx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (AudioContext) audioCtx = new AudioContext();
-      }
-      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      try {
+        if (!audioCtx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) audioCtx = new AC();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      } catch (e) {}
     }
 
-    function playTone(freq, endFreq, duration, type = 'sawtooth', vol = 0.05) {
+    function playTone(freq, endFreq, duration, type, vol) {
       if (!audioCtx) return;
       try {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = type;
+        osc.type = type || 'sawtooth';
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), audioCtx.currentTime + duration);
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol || 0.05, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -267,7 +269,7 @@
 
     function playLevelUpChime() {
       playTone(440, 660, 0.1, 'sine', 0.07);
-      setTimeout(() => playTone(660, 990, 0.16, 'sine', 0.07), 80);
+      setTimeout(function() { playTone(660, 990, 0.16, 'sine', 0.07); }, 80);
     }
 
     function getSavedBest() {
@@ -279,7 +281,8 @@
       catch (e) {}
     }
 
-    let W = 0, H = 0;
+    let W = 0;
+    let H = 0;
     const player = {
       x: 200,
       y: 500,
@@ -322,3 +325,5 @@
     let particles = [];
     let shockwaves = [];
     let floatingTexts = [];
+    let stars = [];
+    for (let i = 0; i < 65; i++) {
