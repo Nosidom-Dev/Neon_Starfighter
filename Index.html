@@ -1,9 +1,23 @@
+<!--
+  ==============================================================================
+  NEON STARFIGHTER (Version 2.1)
+  Copyright (c) 2026 Nosidom-Dev. All Rights Reserved.
+
+  PROPRIETARY & CONFIDENTIAL:
+  This game, including all source code, visual designs, mechanics, and assets,
+  is the exclusive property of Nosidom-Dev. Unauthorized copying, modification,
+  re-uploading, hosting, or distribution of this code in whole or in part
+  without explicit written permission from Nosidom-Dev is strictly prohibited.
+  ==============================================================================
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Neon Starfighter 2.1</title>
+  <meta name="author" content="Nosidom-Dev" />
+  <meta name="copyright" content="Copyright (c) 2026 Nosidom-Dev. All Rights Reserved." />
+  <title>Neon Starfighter 2.1 — Nosidom-Dev</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
     body {
@@ -154,6 +168,21 @@
       transition: transform 0.1s;
     }
     button:active { transform: scale(0.95); }
+    #legalFooter {
+      position: absolute;
+      bottom: 14px;
+      left: 16px;
+      right: 16px;
+      font-size: 10px;
+      line-height: 1.4;
+      color: #64748b;
+      text-align: center;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    #legalFooter strong {
+      color: #94a3b8;
+    }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -180,13 +209,19 @@
   <canvas id="game"></canvas>
 
   <div id="overlay">
-    <div class="tag">VERSION 2.1</div>
+    <div class="tag">VERSION 2.1 • CREATED BY NOSIDOM-DEV</div>
     <h1 id="title">NEON STARFIGHTER</h1>
     <p id="subtitle">Touch & drag to weave through enemy fire.<br>Level up weapons & dismantle shielded Dreadnought bosses!</p>
     <button id="startBtn" type="button">LAUNCH MISSION</button>
+    <div id="legalFooter">
+      <strong>© 2026 Nosidom-Dev. All Rights Reserved.</strong><br>
+      This game and its source code belong exclusively to Nosidom-Dev and may not be copied, re-uploaded, or shared without explicit permission.
+    </div>
   </div>
 
   <script>
+    // Copyright (c) 2026 Nosidom-Dev. All Rights Reserved.
+    // Unauthorized copying, re-uploading, or redistribution without permission is prohibited.
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
@@ -287,47 +322,3 @@
     let particles = [];
     let shockwaves = [];
     let floatingTexts = [];
-    let stars = Array.from({ length: 65 }, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      s: Math.random() * 1.8 + 0.5,
-      v: Math.random() * 2.2 + 0.6
-    }));
-
-    function updatePointer(clientX) {
-      const rect = canvas.getBoundingClientRect();
-      pointerX = Math.max(28, Math.min(W - 28, clientX - rect.left));
-    }
-
-    canvas.addEventListener('touchstart', e => {
-      if (e.touches && e.touches.length > 0) {
-        isDragging = true;
-        updatePointer(e.touches[0].clientX);
-      }
-    }, { passive: true });
-
-    canvas.addEventListener('touchmove', e => {
-      if (e.touches && e.touches.length > 0) {
-        updatePointer(e.touches[0].clientX);
-      }
-    }, { passive: true });
-
-    canvas.addEventListener('touchend', () => { isDragging = false; });
-    canvas.addEventListener('pointerdown', e => { isDragging = true; updatePointer(e.clientX); });
-    window.addEventListener('pointermove', e => { if (isDragging || e.pointerType === 'mouse') updatePointer(e.clientX); });
-    window.addEventListener('pointerup', () => { isDragging = false; });
-
-    function addFloatingText(x, y, text, color = '#00f0ff') {
-      floatingTexts.push({ x, y, text, color, life: 52, maxLife: 52 });
-    }
-
-    function addShockwave(x, y, color, maxR = 75) {
-      shockwaves.push({ x, y, r: 8, maxR, color, life: 22, maxLife: 22 });
-    }
-
-    function resetGame() {
-      score = 0;
-      frame = 0;
-      nextBossScore = 15000;
-      bossCount = 0;
-      boss = null;
