@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Neon Starfighter 2.1</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+    body {
+      background: #05060a;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      display: block;
+      touch-action: none;
+      background: radial-gradient(circle at 50% 30%, #0d1224 0%, #040509 100%);
+      box-shadow: 0 0 40px rgba(0, 240, 255, 0.12);
+    }
+    #ui {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+      z-index: 5;
+    }
+    #statsBar {
+      position: absolute;
+      top: 38px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      pointer-events: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      z-index: 5;
+    }
+    #bossHud {
+      position: absolute;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(86%, 430px);
+      pointer-events: none;
+      text-align: center;
+      z-index: 6;
+    }
+    #bossName {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #ff2a85;
+      text-shadow: 0 0 10px #ff2a85;
+      margin-bottom: 4px;
+    }
+    #bossBarBg {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 42, 133, 0.6);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    #bossBarFill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff0055, #ff8800);
+      box-shadow: 0 0 12px #ff0055;
+      transition: width 0.08s linear;
+    }
+    #warningBanner {
+      position: absolute;
+      top: 30%;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #ff2a85;
+      text-shadow: 0 0 22px #ff0055;
+      pointer-events: none;
+      z-index: 8;
+      animation: pulseWarn 0.35s infinite alternate;
+    }
+    #warningSub {
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: #00f0ff;
+      margin-top: 6px;
+      text-shadow: 0 0 10px #00f0ff;
+    }
+    @keyframes pulseWarn {
+      from { opacity: 0.35; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1.03); }
+    }
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 5, 9, 0.88);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 24px;
+      z-index: 10;
+    }
+    h1 {
+      font-size: 38px;
+      letter-spacing: 3px;
+      color: #00f0ff;
+      text-shadow: 0 0 22px #00f0ff;
+      margin-bottom: 8px;
+    }
+    .tag {
+      font-size: 13px;
+      color: #ff2a85;
+      letter-spacing: 3px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      text-shadow: 0 0 10px #ff2a85;
+    }
+    p { color: #cbd5e1; margin-bottom: 26px; font-size: 15px; line-height: 1.5; max-width: 380px; }
+    button {
+      background: linear-gradient(135deg, #00f0ff, #0077ff);
+      border: none;
+      padding: 16px 42px;
+      color: #040509;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      border-radius: 30px;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+      transition: transform 0.1s;
+    }
+    button:active { transform: scale(0.95); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <div>SCORE: <span id="score">0</span></div>
+    <div>BEST: <span id="best">0</span></div>
+    <div>SHIELD: <span id="lives">100</span>%</div>
+  </div>
+  <div id="statsBar">
+    <span>PWR <span id="dmgLvl">LV.1</span></span>
+    <span>SPD <span id="spdLvl">LV.1</span></span>
+    <span>MSL <span id="mslLvl">LV.0</span></span>
+  </div>
+  <div id="bossHud" class="hidden">
+    <div id="bossName">OMEGA DREADNOUGHT</div>
+    <div id="bossBarBg"><div id="bossBarFill"></div></div>
+  </div>
+  <div id="warningBanner" class="hidden">
+    WARNING: DREADNOUGHT
+    <div id="warningSub">DESTROY WING TURRETS TO DROP CORE SHIELD</div>
+  </div>
+
+  <canvas id="game"></canvas>
+
+  <div id="overlay">
+    <div class="tag">VERSION 2.1</div>
+    <h1 id="title">NEON STARFIGHTER</h1>
+    <p id="subtitle">Touch & drag to weave through enemy fire.<br>Level up weapons & dismantle shielded Dreadnought bosses!</p>
+    <button id="startBtn" type="button">LAUNCH MISSION</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const bestEl = document.getElementById('best');
+    const livesEl = document.getElementById('lives');
+    const dmgLvlEl = document.getElementById('dmgLvl');
+    const spdLvlEl = document.getElementById('spdLvl');
+    const mslLvlEl = document.getElementById('mslLvl');
+    const bossHud = document.getElementById('bossHud');
+    const bossNameEl = document.getElementById('bossName');
+    const bossBarFill = document.getElementById('bossBarFill');
+    const warningBanner = document.getElementById('warningBanner');
+    const overlay = document.getElementById('overlay');
+    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
+    const startBtn = document.getElementById('startBtn');
+
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playTone(freq, endFreq, duration, type = 'sawtooth', vol = 0.05) {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), audioCtx.currentTime + duration);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playLevelUpChime() {
+      playTone(440, 660, 0.1, 'sine', 0.07);
+      setTimeout(() => playTone(660, 990, 0.16, 'sine', 0.07), 80);
+    }
+
+    function getSavedBest() {
+      try { return Number(localStorage.getItem('neonStarfighterV21Best')) || 0; }
+      catch (e) { return 0; }
+    }
+    function saveBest(val) {
+      try { localStorage.setItem('neonStarfighterV21Best', val); }
+      catch (e) {}
+    }
+
+    let W = 0, H = 0;
+    const player = {
+      x: 200,
+      y: 500,
+      r: 18,
+      shield: 100,
+      dmgLevel: 1,
+      spdLevel: 1,
+      mslLevel: 0,
+      invuln: 0
+    };
+
+    function resize() {
+      W = canvas.width = Math.min(window.innerWidth, 900);
+      H = canvas.height = window.innerHeight;
+      player.y = H - 110;
+      player.x = Math.max(28, Math.min(W - 28, player.x));
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let bestScore = getSavedBest();
+    bestEl.textContent = bestScore;
+
+    let running = false;
+    let score = 0;
+    let frame = 0;
+    let pointerX = W / 2;
+    let isDragging = false;
+    let nextBossScore = 15000;
+    let bossCount = 0;
+    let boss = null;
+    let screenShake = 0;
+    let redAlertAlpha = 0;
+
+    let bullets = [];
+    let missiles = [];
+    let enemies = [];
+    let enemyBullets = [];
+    let powerups = [];
+    let particles = [];
+    let shockwaves = [];
+    let floatingTexts = [];
+    let stars = Array.from({ length: 65 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      s: Math.random() * 1.8 + 0.5,
+      v: Math.random() * 2.2 + 0.6
+    }));
+
+    function updatePointer(clientX) {
+      const rect = canvas.getBoundingClientRect();
+      pointerX = Math.max(28, Math.min(W - 28, clientX - rect.left));
+    }
+
+    canvas.addEventListener('touchstart', e => {
+      if (e.touches && e.touches.length > 0) {
+        isDragging = true;
+        updatePointer(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', e => {
+      if (e.touches && e.touches.length > 0) {
+        updatePointer(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', () => { isDragging = false; });
+    canvas.addEventListener('pointerdown', e => { isDragging = true; updatePointer(e.clientX); });
+    window.addEventListener('pointermove', e => { if (isDragging || e.pointerType === 'mouse') updatePointer(e.clientX); });
+    window.addEventListener('pointerup', () => { isDragging = false; });
+
+    function addFloatingText(x, y, text, color = '#00f0ff') {
+      floatingTexts.push({ x, y, text, color, life: 52, maxLife: 52 });
+    }
+
+    function addShockwave(x, y, color, maxR = 75) {
+      shockwaves.push({ x, y, r: 8, maxR, color, life: 22, maxLife: 22 });
+    }
+
+    function resetGame() {
+      score = 0;
+      frame = 0;
+      nextBossScore = 15000;
+      bossCount = 0;
+      boss = null;
