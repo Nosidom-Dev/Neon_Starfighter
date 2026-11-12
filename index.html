@@ -215,6 +215,9 @@ function sy(tx,ty,str,col){txt.push({x:tx,y:ty,t:str,c:col||'#00f0ff',l:45,m:45}
 function rg(rx,ry,col,mr){shk.push({x:rx,y:ry,r:8,mr:mr||75,c:col,l:20,m:20});}
 function lc(l){return l>=9?'#ff2a85':l>=6?'#facc15':l>=3?'#00ff88':'#00f0ff';}
 function pd(){return 18*Math.pow(pl.dmg,.72);}
+// Temporary pickups cannot exceed three levels above the ship's permanent weapon tech.
+function weaponPowerCap(){return 1+campaign.upgrades.dmg+(ships[campaign.ship]||ships[0]).dmg+3;}
+function bossHitDamage(amount){return Math.min(95,Math.max(1,amount));}
 function hp(a){if(pl.inv>0)return;pl.shd-=a;pl.inv=28;shkA=10;bp(140,50,.2,'sawtooth',.07);bm(pl.x,pl.y,'#ff3355',14);hud();if(pl.shd<=0){run=false;clearSavedRun();document.getElementById('abilityBtn').classList.add('hidden');bHud.classList.add('hidden');warn.classList.add('hidden');document.getElementById('ti').textContent='MISSION FAILED';document.getElementById('su').innerHTML='Final: <b>'+Math.floor(score)+'</b> • Best: <b>'+best+'</b>';restoreHubPanels();document.getElementById('btn').textContent='PLAY AGAIN';ov.classList.remove('hidden');}}
 function fr(){const ship=ships[campaign.ship]||ships[0],d=pd(),s=16+Math.min(7,pl.spd*.8),w=Math.min(6,3+pl.dmg*.3),co=ship.color;
  if(ship.style==='juggernaut'){for(const side of [-1,1])bul.push({x:pl.x+side*15,y:pl.y-10,py:pl.y+7,vy:-s*.78,d:d*1.55,c:'#ff9b3d',w:w+3,kind:'heavy'});}
@@ -234,7 +237,7 @@ function fm(){const cnt=Math.min(5,pl.msl),d=pd()*2.1;bp(320,120,.1,'triangle',.
 function wb(){if(boss||bossPending)return;bossPending=120;setPhase(2);warn.classList.remove('hidden');warn.firstChild.textContent='WARNING: '+bossTitle();enm.forEach(e=>bm(e.x,e.y,e.c,8));enm=[];ebul=[];bp(140,95,.4,'sawtooth',.07);}
 function spawnBoss(){warn.classList.add('hidden');bossPending=0;bT++;const sec=sectorIndex(),major=campaign.level%5===0;const strength=1+(campaign.level-1)*.11;const ch=(major?1400:850)*strength,th=(major?400:230)*strength;bName.textContent=bossTitle()+(major?' • SECTOR FLAGSHIP':' • COMMANDER')+' [SHIELDED]';bHud.classList.remove('hidden');bFill.style.width='100%';boss={x:W/2,y:-110,ty:125,vx:(major?2.5:1.8)+sec*.24,hp:ch,mh:ch,lt:{hp:th,mh:th,ox:-66,oy:12},rt:{hp:th,mh:th,ox:66,oy:12},shd:true,at:90,bc:0,ba:0,t:bT,sec,major};}
 function kb(){const bx=boss.x,by=boss.y,bn=5000*boss.t;bm(bx,by,'#ff2a85',45,1.8);rg(bx,by,'#ff2a85',170);bp(160,35,.6,'sawtooth',.09);shkA=18;score+=bn;sy(bx,by,'BOSS DESTROYED +'+bn,'#facc15');boss=null;bHud.classList.add('hidden');hud();completeMission();}
-function ke(i){const e=enm.at(i);bm(e.x,e.y,e.c,14);bp(220,65,.12,'square',.03);score+=(ENEMY_TYPES[e.t]||ENEMY_TYPES.i).points;hud();if(Math.random()<.26){const r=Math.random(),d=r>.76?{t:'shd',l:'+SHD',c:'#00ff88'}:r>.54?{t:'msl',l:'MSL',c:'#ff8800'}:r>.28?{t:'spd',l:'SPD',c:'#facc15'}:{t:'dmg',l:'DMG',c:'#00f0ff'};pwr.push({x:e.x,y:e.y,...d});}enm.splice(i,1);}
+function ke(i){const e=enm.at(i);bm(e.x,e.y,e.c,14);bp(220,65,.12,'square',.03);score+=(ENEMY_TYPES[e.t]||ENEMY_TYPES.i).points;hud();if(Math.random()<.09){const r=Math.random(),d=r>.62?{t:'shd',l:'+SHD',c:'#00ff88'}:r>.37?{t:'msl',l:'MSL',c:'#ff8800'}:r>.18?{t:'spd',l:'SPD',c:'#facc15'}:{t:'dmg',l:'DMG',c:'#00f0ff'};if(pwr.length<5)pwr.push({x:e.x,y:e.y,...d});}enm.splice(i,1);}
 function loop(){
   if(!run)return;frm++;missionTick++;document.getElementById('abilityBtn').classList.remove('hidden');document.getElementById('abilityBtn').textContent=abilityCooldown>0?'SPECIAL • '+Math.ceil(abilityCooldown/60)+'s':'SPECIAL • READY';if(abilityCooldown>0)abilityCooldown--;if(abilityFlash>0)abilityFlash--;if(frm%300===0)saveRun();x.save();
   if(shkA>0){x.translate((Math.random()-.5)*shkA,(Math.random()-.5)*shkA);shkA*=.85;if(shkA<.5)shkA=0;}
@@ -254,10 +257,10 @@ function loop(){
     x.strokeStyle='#ffffff';x.lineWidth=Math.max(1.5,b.w*.45);x.beginPath();x.moveTo(b.x,b.py);x.lineTo(b.x,b.y);x.stroke();x.restore();
     let hit=false;
     if(boss&&boss.y>=boss.ty-10){
-      [boss.lt,boss.rt].forEach(t=>{if(!hit&&t.hp>0&&Math.hypot(boss.x+t.ox-b.x,boss.y+t.oy-b.y)<19){t.hp-=b.d;hit=true;bm(b.x,b.y,'#facc15',4,.6);if(t.hp<=0){bm(boss.x+t.ox,boss.y+t.oy,'#facc15',22,1.3);rg(boss.x+t.ox,boss.y+t.oy,'#facc15',65);sy(boss.x+t.ox,boss.y+t.oy,'TURRET DOWN!','#facc15');score+=1000;hud();}}});
-      if(!hit&&Math.abs(b.x-boss.x)<55&&Math.abs(b.y-boss.y)<35){hit=true;if(boss.shd){bm(b.x,b.y+15,'#00f0ff',3,.5);if(frm%18===0)sy(boss.x,boss.y+52,'SHIELDED - HIT TURRETS!','#00f0ff');}else{boss.hp-=b.d;bm(b.x,b.y,'#ff2a85',4,.6);if(boss.hp<=0)kb();}}
+      [boss.lt,boss.rt].forEach(t=>{if(!hit&&t.hp>0&&Math.hypot(boss.x+t.ox-b.x,boss.y+t.oy-b.y)<19){t.hp-=bossHitDamage(b.d);hit=true;bm(b.x,b.y,'#facc15',4,.6);if(t.hp<=0){bm(boss.x+t.ox,boss.y+t.oy,'#facc15',22,1.3);rg(boss.x+t.ox,boss.y+t.oy,'#facc15',65);sy(boss.x+t.ox,boss.y+t.oy,'TURRET DOWN!','#facc15');score+=1000;hud();}}});
+      if(!hit&&Math.abs(b.x-boss.x)<55&&Math.abs(b.y-boss.y)<35){hit=true;if(boss.shd){bm(b.x,b.y+15,'#00f0ff',3,.5);if(frm%18===0)sy(boss.x,boss.y+52,'SHIELDED - HIT TURRETS!','#00f0ff');}else{boss.hp-=bossHitDamage(b.d);bm(b.x,b.y,'#ff2a85',4,.6);if(boss.hp<=0)kb();}}
     }
-    if(hit){if(b.pierce>0){b.pierce--;b.y-=18;b.py=b.y+18;}else bul.splice(i,1);continue;}
+    if(hit){bul.splice(i,1);continue;}
     for(let j=enm.length-1;j>=0;j--){const e=enm.at(j);if(Math.hypot(e.x-b.x,e.y-b.y)<e.r+8){e.hp-=b.d*(e.t==='f'&&b.kind!=='flare'?.65:1);if(b.pierce>0){b.pierce--;b.y-=18;b.py=b.y+18;}else bul.splice(i,1);if(e.hp<=0)ke(j);break;}}
   }
   for(let i=msl.length-1;i>=0;i--){
@@ -269,7 +272,7 @@ function loop(){
     m.x+=m.vx;m.y+=m.vy;if(m.y<-30||m.y>H+30||m.x<-30||m.x>W+30){msl.splice(i,1);continue;}
     x.strokeStyle='rgba(255,136,0,.5)';x.lineWidth=2.5;x.beginPath();m.tr.forEach((p,k)=>k?x.lineTo(p.x,p.y):x.moveTo(p.x,p.y));x.stroke();
     x.fillStyle='#ffaa00';x.beginPath();x.arc(m.x,m.y,4,0,6.28);x.fill();
-    if(boss){let hb=false;[boss.lt,boss.rt].forEach(t=>{if(!hb&&t.hp>0&&Math.hypot(boss.x+t.ox-m.x,boss.y+t.oy-m.y)<22){t.hp-=m.d;hb=true;bm(m.x,m.y,'#ff8800',8);if(t.hp<=0){bm(boss.x+t.ox,boss.y+t.oy,'#facc15',22,1.3);sy(boss.x+t.ox,boss.y+t.oy,'TURRET DOWN!','#facc15');score+=1000;hud();}}});if(!hb&&Math.abs(m.x-boss.x)<65&&Math.abs(m.y-boss.y)<40){hb=true;if(!boss.shd){boss.hp-=m.d;bm(m.x,m.y,'#ff8800',8);if(boss.hp<=0)kb();}}if(hb){msl.splice(i,1);continue;}}
+    if(boss){let hb=false;[boss.lt,boss.rt].forEach(t=>{if(!hb&&t.hp>0&&Math.hypot(boss.x+t.ox-m.x,boss.y+t.oy-m.y)<22){t.hp-=bossHitDamage(m.d);hb=true;bm(m.x,m.y,'#ff8800',8);if(t.hp<=0){bm(boss.x+t.ox,boss.y+t.oy,'#facc15',22,1.3);sy(boss.x+t.ox,boss.y+t.oy,'TURRET DOWN!','#facc15');score+=1000;hud();}}});if(!hb&&Math.abs(m.x-boss.x)<65&&Math.abs(m.y-boss.y)<40){hb=true;if(!boss.shd){boss.hp-=bossHitDamage(m.d);bm(m.x,m.y,'#ff8800',8);if(boss.hp<=0)kb();}}if(hb){msl.splice(i,1);continue;}}
     for(let j=enm.length-1;j>=0;j--){const e=enm.at(j);if(Math.hypot(e.x-m.x,e.y-m.y)<e.r+9){e.hp-=m.d;bm(m.x,m.y,'#ff8800',8);msl.splice(i,1);if(e.hp<=0)ke(j);break;}}
   }
   if(boss){
@@ -286,8 +289,15 @@ function loop(){
     else if(boss.ba>0){x.fillStyle='rgba(255,42,133,.35)';x.fillRect(-24,35,48,H);x.fillStyle='#fff';x.fillRect(-8,35,16,H);}
     const bossColor=SECTORS[boss.sec].color;x.strokeStyle=bossColor;x.lineWidth=boss.major?4:3;x.shadowBlur=16;x.shadowColor=bossColor;x.fillStyle='rgba(255,42,133,.15)';
     x.beginPath();const wing=72+boss.sec*7+(boss.major?12:0),nose=38+boss.sec*4;x.moveTo(0,48);x.lineTo(-32,24);x.lineTo(-wing,15);x.lineTo(-wing+10,-30);x.lineTo(-26,-38);x.lineTo(0,-nose);x.lineTo(26,-38);x.lineTo(wing-10,-30);x.lineTo(wing,15);x.lineTo(32,24);x.closePath();x.fill();x.stroke();x.beginPath();x.moveTo(-20,5);x.lineTo(0,-24);x.lineTo(20,5);x.closePath();x.stroke();if(boss.major){x.strokeRect(-24,-15,48,35);x.strokeRect(-wing+7,-8,22,30);x.strokeRect(wing-29,-8,22,30);}
-    if(boss.shd){x.strokeStyle='#00f0ff';x.beginPath();x.arc(0,4,32,0,6.28);x.stroke();}
-    [boss.lt,boss.rt].forEach(t=>{if(t.hp>0){x.strokeStyle='#facc15';x.beginPath();x.arc(t.ox,t.oy,15,0,6.28);x.stroke();}});
+    if(boss.shd){x.save();x.strokeStyle='#00f0ff';x.lineWidth=4;x.shadowColor='#00f0ff';x.shadowBlur=22;x.beginPath();x.ellipse(0,4,48,51,0,0,Math.PI*2);x.stroke();x.strokeStyle='rgba(0,240,255,.45)';x.lineWidth=2;x.beginPath();x.ellipse(0,4,55,58,0,0,Math.PI*2);x.stroke();x.restore();}
+    [boss.lt,boss.rt].forEach((t,i)=>{if(t.hp>0){
+      x.save();x.translate(t.ox,t.oy);x.shadowColor='#ffce38';x.shadowBlur=16;
+      x.fillStyle='#3b2943';x.strokeStyle='#ffcf54';x.lineWidth=3;
+      x.beginPath();x.moveTo(0,-25);x.lineTo(24,-12);x.lineTo(25,12);x.lineTo(0,25);x.lineTo(-25,12);x.lineTo(-24,-12);x.closePath();x.fill();x.stroke();
+      x.fillStyle='#ffb52b';x.fillRect(-9,-15,18,30);x.fillStyle='#fff0b0';x.fillRect(-4,-12,8,22);
+      x.shadowBlur=0;x.fillStyle='#171723';x.fillRect(-26,-34,52,6);x.fillStyle='#ffce38';x.fillRect(-25,-33,50*Math.max(0,t.hp/t.mh),4);
+      x.restore();
+    }});
     x.restore();
   }
   for(let i=enm.length-1;i>=0;i--){
@@ -313,7 +323,7 @@ function loop(){
     const p=pwr.at(i);p.y+=2.4;x.save();x.strokeStyle=p.c;x.lineWidth=2.5;x.beginPath();x.arc(p.x,p.y,16,0,6.28);x.stroke();x.fillStyle='#fff';x.font='bold 11px sans-serif';x.textAlign='center';x.fillText(p.l,p.x,p.y+4);x.restore();
     if(Math.hypot(p.x-pl.x,p.y-pl.y)<pl.r+18){
       bp(520,980,.15,'sine',.06);rg(pl.x,pl.y,p.c,80);
-      if(p.t==='dmg'){pl.dmg++;sy(pl.x,pl.y-30,'POWER UP! LV.'+pl.dmg,'#00f0ff');}
+      if(p.t==='dmg'){if(pl.dmg<weaponPowerCap()){pl.dmg++;sy(pl.x,pl.y-30,'POWER UP! LV.'+pl.dmg,'#00f0ff');}else{score+=1000;sy(pl.x,pl.y-30,'WEAPON MAX +1000!','#00f0ff');}}
       else if(p.t==='spd'){if(pl.spd<8){pl.spd++;sy(pl.x,pl.y-30,'SPEED UP! LV.'+pl.spd,'#facc15');}else{score+=2500;sy(pl.x,pl.y-30,'MAX SPEED +2500!','#facc15');}}
       else if(p.t==='msl'){if(pl.msl<5){pl.msl++;sy(pl.x,pl.y-30,'MISSILES UP! LV.'+pl.msl,'#ff8800');}else{score+=2500;sy(pl.x,pl.y-30,'MAX MISSILES +2500!','#ff8800');}}
       else{pl.shd=Math.min(100,pl.shd+35);sy(pl.x,pl.y-30,'SHIELD +35%','#00ff88');}
@@ -328,7 +338,7 @@ function loop(){
   x.restore();requestAnimationFrame(loop);
 }
 
-function resumeRun(){const snap=readSavedRun();if(!snap)return;restoreHubPanels();try{if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(A)ac=new A();}if(ac&&ac.state==='suspended')ac.resume();}catch(e){}score=snap.score||0;frm=snap.frm||0;missionTick=snap.missionTick||0;phase=snap.phase||0;bossPending=snap.bossPending||0;spawnWave=snap.spawnWave||0;px=snap.px||W/2;nextB=snap.nextB||15000;bT=snap.bT||0;Object.assign(pl,snap.pl||{});bul=snap.bul||[];msl=snap.msl||[];enm=snap.enm||[];ebul=snap.ebul||[];pwr=snap.pwr||[];prt=[];shk=[];txt=[];boss=snap.boss||null;abilityCooldown=snap.abilityCooldown||0;abilityFlash=0;pl.y=H-110;pl.x=Math.max(28,Math.min(W-28,pl.x));px=Math.max(28,Math.min(W-28,px));bHud.classList.toggle('hidden',!boss);warn.classList.toggle('hidden',!bossPending);ov.classList.add('hidden');hud();run=true;loop();}
+function resumeRun(){const snap=readSavedRun();if(!snap)return;restoreHubPanels();try{if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(A)ac=new A();}if(ac&&ac.state==='suspended')ac.resume();}catch(e){}score=snap.score||0;frm=snap.frm||0;missionTick=snap.missionTick||0;phase=snap.phase||0;bossPending=snap.bossPending||0;spawnWave=snap.spawnWave||0;px=snap.px||W/2;nextB=snap.nextB||15000;bT=snap.bT||0;Object.assign(pl,snap.pl||{});pl.dmg=Math.min(pl.dmg,weaponPowerCap());bul=snap.bul||[];msl=snap.msl||[];enm=snap.enm||[];ebul=snap.ebul||[];pwr=snap.pwr||[];prt=[];shk=[];txt=[];boss=snap.boss||null;abilityCooldown=snap.abilityCooldown||0;abilityFlash=0;pl.y=H-110;pl.x=Math.max(28,Math.min(W-28,pl.x));px=Math.max(28,Math.min(W-28,px));bHud.classList.toggle('hidden',!boss);warn.classList.toggle('hidden',!bossPending);ov.classList.add('hidden');hud();run=true;loop();}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&run)saveRun();});window.addEventListener('pagehide',()=>{if(run)saveRun();});
 
 function start(e){if(e)e.preventDefault();if(run)return;clearSavedRun();restoreHubPanels();try{if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(A)ac=new A();}if(ac&&ac.state==='suspended')ac.resume();}catch(err){}ov.classList.add('hidden');score=0;frm=0;missionTick=0;phase=0;bossPending=0;spawnWave=0;nextB=15000;bT=0;boss=null;bHud.classList.add('hidden');warn.classList.add('hidden');pl.x=W/2;px=W/2;pl.y=H-110;const ship=ships[campaign.ship]||ships[0];pl.shd=Math.min(100,100+campaign.upgrades.shd*8+ship.shield);pl.dmg=1+campaign.upgrades.dmg+ship.dmg;pl.spd=Math.max(1,Math.min(8,1+campaign.upgrades.spd+ship.spd));pl.msl=Math.min(5,campaign.upgrades.msl+ship.msl);pl.inv=0;abilityCooldown=0;abilityFlash=0;bul=[];msl=[];enm=[];ebul=[];pwr=[];prt=[];shk=[];txt=[];hud();run=true;loop();}
