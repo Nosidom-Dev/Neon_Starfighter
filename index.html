@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="author" content="Nosidom-Dev">
 <meta name="copyright" content="Copyright (c) 2026 Nosidom-Dev. All Rights Reserved.">
-<title>Neon Starfighter 2.1 — Nosidom-Dev</title>
+<title>Neon Starfighter: Galactic Frontier 3.2 — Nosidom-Dev</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none}
 body{background:#05060a;color:#fff;font-family:sans-serif;overflow:hidden;display:flex;justify-content:center;align-items:center;height:100vh}
@@ -25,20 +25,90 @@ p{color:#cbd5e1;margin:12px 0 24px;font-size:14px;line-height:1.5;max-width:360p
 button{background:linear-gradient(135deg,#00f0ff,#0077ff);border:none;padding:18px 44px;color:#040509;font-size:18px;font-weight:900;border-radius:30px;cursor:pointer;touch-action:manipulation;box-shadow:0 0 25px rgba(0,240,255,.6)}
 #legal{position:absolute;bottom:14px;left:16px;right:16px;font-size:10px;line-height:1.4;color:#64748b;text-align:center;max-width:440px;margin:0 auto}
 .hidden{display:none!important}
+
+#ov{overflow-y:auto;justify-content:flex-start;padding:22px 16px 70px}
+#home{width:min(100%,620px);margin:auto}
+#home h1{font-size:clamp(28px,6vw,42px)}
+#home p{margin:8px auto 16px}
+.hubStats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:12px 0}
+.hubPill{border:1px solid rgba(0,240,255,.35);background:rgba(0,240,255,.08);padding:8px 13px;border-radius:20px;color:#c8faff;font-size:12px;font-weight:800}
+.panel{border:1px solid rgba(0,240,255,.25);background:rgba(12,18,35,.86);border-radius:16px;padding:14px;margin:10px 0;text-align:left;box-shadow:0 0 22px rgba(0,180,255,.08)}
+.panel h2{font-size:14px;letter-spacing:1.5px;color:#00f0ff;margin-bottom:10px}
+.shipRow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#shipPreview{width:100%;height:132px;display:block;border-radius:12px;background:radial-gradient(ellipse at 50% 80%,rgba(0,240,255,.12),rgba(3,8,20,.9) 70%);border:1px solid rgba(0,240,255,.16);margin:10px 0}
+.shipStats{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.shipStat{font-size:10px;color:#c8faff;border:1px solid rgba(0,240,255,.2);padding:5px 8px;border-radius:9px}
+#resumeBtn{background:linear-gradient(135deg,#facc15,#ff8800);color:#171006;margin:8px auto 0;padding:12px 24px;font-size:14px}
+.shipName{font-size:20px;font-weight:900;color:#fff}
+.shipDesc{font-size:12px;color:#94a3b8;line-height:1.45;margin-top:4px}
+.smallBtn{padding:10px 13px;font-size:12px;border-radius:18px;box-shadow:none;white-space:nowrap}
+.secondary{background:linear-gradient(135deg,#273449,#172033);color:#dbeafe;border:1px solid #42536b}
+.upgradeGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.upgrade{background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.2);border-radius:12px;padding:10px}
+.upgrade strong{display:block;font-size:12px;color:#fff}
+.upgrade span{display:block;font-size:11px;color:#94a3b8;margin:4px 0 8px}
+.upgrade button{width:100%;padding:9px 5px;font-size:11px;border-radius:14px}
+.levelTrack{display:flex;gap:6px;flex-wrap:wrap}
+.levelDot{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:11px;font-weight:900;border:1px solid #334155;background:#111827;color:#64748b}
+.levelDot.done{background:rgba(0,240,255,.18);border-color:#00f0ff;color:#a5f3fc}
+.levelDot.current{background:#00f0ff;color:#041018;border-color:#fff;box-shadow:0 0 12px #00f0ff}
+#missionActions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+#btn{margin:8px auto 0}
+#legal{position:static;margin:20px auto 0}
+@media(max-height:700px){#ov{padding-top:10px}.panel{padding:10px;margin:7px 0}.hubStats{margin:7px 0}}
+
 </style>
 </head>
 <body>
 <div id="ui"><div>SCORE: <span id="sc">0</span></div><div>BEST: <span id="bs">0</span></div><div>SHIELD: <span id="lv">100</span>%</div></div>
+<div id="missionHud" style="position:absolute;top:82px;left:12px;right:12px;text-align:center;color:#8be9ff;font-size:11px;font-weight:800;pointer-events:none;z-index:5;text-shadow:0 0 10px #008cff">MISSION 01 • APPROACH</div>
 <div id="stats"><span>PWR <span id="dl">LV.1</span></span><span>SPD <span id="sl">LV.1</span></span><span>MSL <span id="ml">LV.0</span></span></div>
+<button id="abilityBtn" class="hidden" type="button" style="position:absolute;bottom:22px;right:18px;z-index:9;padding:12px 16px;font-size:11px;border-radius:18px">SPECIAL</button>
 <div id="bossHud" class="hidden"><div id="bossName">DREADNOUGHT</div><div id="bossBarBg"><div id="bossBarFill"></div></div></div>
 <div id="warn" class="hidden">WARNING: DREADNOUGHT<div style="font-size:12px;color:#00f0ff;margin-top:4px">DESTROY WING TURRETS TO DROP CORE SHIELD</div></div>
 <canvas id="g"></canvas>
 <div id="ov">
-  <div class="tag">VERSION 2.1 • CREATED BY NOSIDOM-DEV</div>
-  <h1 id="ti">NEON STARFIGHTER</h1>
-  <p id="su">Touch & drag to weave through enemy fire.<br>Level up weapons & dismantle shielded Dreadnought bosses!</p>
-  <button id="btn" type="button">LAUNCH MISSION</button>
-  <div id="legal"><strong style="color:#94a3b8">© 2026 Nosidom-Dev. All Rights Reserved.</strong><br>This game and its source code belong exclusively to Nosidom-Dev and may not be copied, re-uploaded, or sharing without explicit permission.</div>
+  <main id="home">
+    <div class="tag">GALACTIC FRONTIER 3.2 • ORIGINAL DESIGNS BY NOSIDOM-DEV</div>
+    <h1 id="ti">NEON STARFIGHTER</h1>
+    <p id="su">Your campaign begins at the edge of known space. Clear each mission, defeat its boss, and unlock the next frontier.</p>
+    <div class="hubStats">
+      <div class="hubPill">CREDITS: <span id="credits">0</span></div>
+      <div class="hubPill">MISSION: <span id="missionNum">01</span> / 25</div>
+      <div class="hubPill">BEST: <span id="hubBest">0</span></div>
+    </div>
+    <section class="panel">
+      <h2>CAMPAIGN MAP</h2>
+      <div style="font-weight:900;font-size:17px" id="sectorName">SECTOR 1 — OUTER RIM</div>
+      <div class="shipDesc" id="missionDesc">Mission 1: Patrol the frontier. Defeat the Dreadnought to advance.</div>
+      <div class="levelTrack" id="levelTrack"></div>
+    </section>
+    <section class="panel">
+      <h2>SHIP HANGAR</h2>
+      <canvas id="shipPreview" width="560" height="180" aria-label="Original ship preview"></canvas>
+      <div class="shipRow">
+        <div><div class="shipName" id="shipName">VANGUARD</div><div class="shipDesc" id="shipDesc">Balanced starter fighter. Reliable weapons and shields.</div></div>
+        <button class="smallBtn secondary" id="shipCycle" type="button">NEXT SHIP ›</button>
+      </div>
+      <div class="shipStats" id="shipStats"></div>
+      <div class="shipDesc" id="shipStatus" style="margin-top:8px;color:#00f0ff">SELECTED • READY</div>
+    </section>
+    <section class="panel">
+      <h2>TECH TREE • PERMANENT UPGRADES</h2>
+      <div class="upgradeGrid">
+        <div class="upgrade"><strong>WEAPON CORE · <span id="dmgLv">0</span></strong><span>More starting weapon damage</span><button class="smallBtn" id="buyDmg">UPGRADE</button></div>
+        <div class="upgrade"><strong>ENGINE · <span id="spdLv">0</span></strong><span>Faster movement and fire rate</span><button class="smallBtn" id="buySpd">UPGRADE</button></div>
+        <div class="upgrade"><strong>SHIELD MATRIX · <span id="shdLv">0</span></strong><span>More starting shield strength</span><button class="smallBtn" id="buyShd">UPGRADE</button></div>
+        <div class="upgrade"><strong>MISSILE BAY · <span id="mslLv">0</span></strong><span>Start missions with missiles</span><button class="smallBtn" id="buyMsl">UPGRADE</button></div>
+      </div>
+    </section>
+    <div id="missionActions">
+      <button id="btn" type="button">LAUNCH MISSION</button>
+      <button id="resumeBtn" class="hidden" type="button">RESUME SAVED MISSION</button>
+      <button class="smallBtn secondary" id="resetSave" type="button">RESET CAMPAIGN</button>
+    </div>
+    <div id="legal"><strong style="color:#94a3b8">© 2026 Nosidom-Dev. All Rights Reserved.</strong><br>Original ships, artwork, and game code by Nosidom-Dev.</div>
+  </main>
 </div>
 <script>
 // Copyright (c) 2026 Nosidom-Dev. All Rights Reserved.
@@ -52,7 +122,85 @@ let bul=[],msl=[],enm=[],ebul=[],pwr=[],prt=[],shk=[],txt=[],st=[];
 function rsz(){W=c.width=Math.min(innerWidth,900);H=c.height=innerHeight;pl.y=H-110;pl.x=Math.max(28,Math.min(W-28,pl.x));}
 addEventListener('resize',rsz);rsz();
 for(let i=0;i<55;i++)st.push({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.8+.5,v:Math.random()*2+.5});
+
 let best=0;try{best=Number(localStorage.getItem('ns21B'))||0;}catch(e){}bsEl.textContent=best;
+const SAVE_KEY='nsGalacticFrontier22';
+const ships=[
+ {name:'VANGUARD',desc:'A compact all-rounder built around twin pulse cannons and a defensive shield flare.',weapon:'Twin pulse cannons',ability:'NOVA GUARD',unlock:1,dmg:0,spd:0,msl:0,shield:0,color:'#00eaff',style:'vanguard'},
+ {name:'JUGGERNAUT',desc:'A broad armored gunship. Slower to turn, but launches heavy explosive rounds.',weapon:'Heavy burst cannons',ability:'BULWARK BLAST',unlock:3,dmg:1,spd:-1,msl:0,shield:10,color:'#ff9b3d',style:'juggernaut'},
+ {name:'PHANTOM',desc:'A narrow stealth craft with fast, focused shots and a short phase-shift escape.',weapon:'Precision lance',ability:'PHASE SHIFT',unlock:6,dmg:0,spd:2,msl:0,shield:-5,color:'#bd8cff',style:'phantom'},
+ {name:'SOLARIS',desc:'An experimental solar frame. Its charged beam pierces targets and excels against armor.',weapon:'Solar piercing beam',ability:'SOLAR FLARE',unlock:10,dmg:1,spd:0,msl:1,shield:0,color:'#ffe36b',style:'solaris'}
+];
+let campaign={level:1,credits:0,ship:0,upgrades:{dmg:0,spd:0,shd:0,msl:0}};
+const RUN_KEY='nsGalacticFrontierRun31';
+const SECTORS=[{name:'FRONTIER DEFENSE',color:'#00caff',bg:'#06172d'},{name:'SHATTERED BELT',color:'#ffad4b',bg:'#211309'},{name:'PHANTOM NEBULA',color:'#b990ff',bg:'#170d30'},{name:'CRIMSON EXPANSE',color:'#ff596d',bg:'#290a19'},{name:'LAST HORIZON',color:'#fbe18c',bg:'#211b0b'}];
+const ENEMY_TYPES={i:{name:'Scout',hp:28,speed:3.0,r:16,color:'#ff438d',points:250},s:{name:'Interceptor',hp:42,speed:3.7,r:18,color:'#facc15',points:400},c:{name:'Heavy',hp:86,speed:1.9,r:24,color:'#a855f7',points:750},d:{name:'Swarm Drone',hp:19,speed:4.5,r:12,color:'#00e6c8',points:200},b:{name:'Bomber',hp:110,speed:1.65,r:25,color:'#ff9047',points:800},n:{name:'Sniper',hp:46,speed:1.75,r:19,color:'#b7a0ff',points:550},f:{name:'Shield Frigate',hp:150,speed:1.6,r:27,color:'#57b8ff',points:900},a:{name:'Carrier',hp:170,speed:1.3,r:29,color:'#ed83ff',points:1100},h:{name:'Elite Hunter',hp:82,speed:3.7,r:19,color:'#ff596d',points:950}};
+let missionTick=0,phase=0,bossPending=0,spawnWave=0,environment=[];
+function missionDuration(){return Math.round(120+(campaign.level-1)*12.5)*60;}
+function sectorIndex(){return Math.min(4,Math.floor((campaign.level-1)/5));}
+function bossTitle(){return ['SENTINEL COMMANDER','BELT BREAKER','NEBULA WRAITH','CRIMSON WARLORD','HORIZON CITADEL'][sectorIndex()];}
+function setPhase(v){if(phase===v)return;phase=v;const words=['APPROACH','ESCALATION','BOSS ENGAGED'];sy(W/2,H*.30,words[v],SECTORS[sectorIndex()].color);if(v===1)rg(W/2,H*.24,SECTORS[sectorIndex()].color,120);}
+function updateMissionHud(){const left=Math.max(0,Math.ceil((missionDuration()-missionTick)/60));document.getElementById('missionHud').textContent='MISSION '+String(campaign.level).padStart(2,'0')+' • '+['APPROACH','ESCALATION','BOSS'][phase]+' • '+Math.floor(left/60)+':'+String(left%60).padStart(2,'0');}
+function createEnemy(t,atX,atY){const d=ENEMY_TYPES[t]||ENEMY_TYPES.i;const strength=1+(campaign.level-1)*.085;return {x:atX??(35+Math.random()*(W-70)),y:atY??-35,hp:d.hp*strength,mh:d.hp*strength,sp:d.speed*(1+Math.min(.3,(campaign.level-1)*.012)),r:d.r,c:d.color,t,ph:Math.random()*6.28,wv:t==='h'?4:t==='s'?2.6:t==='d'?3.3:1.1,st:45+Math.floor(Math.random()*55),vx:0,armor:t==='f'?0.32:0};}
+function wave(){const sec=sectorIndex(),late=phase===1,choices=[['i','s','d'],['i','s','b','f','d'],['s','n','d','h','f'],['b','h','a','f','s'],['h','a','f','n','b','d']][sec];if(late)choices.push('c','h','b');const type=choices[Math.floor(Math.random()*choices.length)];const count=type==='d'?4:type==='i'||type==='s'?3:type==='h'?2:1;const center=65+Math.random()*Math.max(1,W-130);for(let j=0;j<count;j++)enm.push(createEnemy(type,Math.max(28,Math.min(W-28,center+(j-(count-1)/2)*43)),-35-j*22));}
+function drawEnvironment(){const sec=sectorIndex(),info=SECTORS[sec];x.fillStyle=info.bg;x.globalAlpha=.28;x.fillRect(0,0,W,H);x.globalAlpha=1;if(sec===1){for(let k=0;k<5;k++){const xx=((k*197+missionTick*.28)%(W+100))-50,yy=((k*251+missionTick*.7)%(H+120))-60;x.strokeStyle='rgba(255,157,75,.22)';x.lineWidth=2;x.beginPath();for(let z=0;z<7;z++){const a=z*Math.PI*2/7,r=12+k%3*7;x.lineTo(xx+Math.cos(a)*r,yy+Math.sin(a)*r);}x.closePath();x.stroke();}}else if(sec===2){const gr=x.createRadialGradient(W*.45,H*.35,20,W*.45,H*.35,W*.85);gr.addColorStop(0,'rgba(134,70,230,.13)');gr.addColorStop(1,'rgba(10,0,30,0)');x.fillStyle=gr;x.fillRect(0,0,W,H);}else if(sec===3){x.strokeStyle='rgba(255,60,70,.15)';for(let k=0;k<7;k++){const yy=(k*140+missionTick*.9)%(H+120);x.beginPath();x.moveTo(0,yy);x.lineTo(W,yy-70);x.stroke();}}else if(sec===4){x.strokeStyle='rgba(250,220,130,.15)';for(let k=0;k<8;k++){x.beginPath();x.arc(W/2,H*.18,(k*100+missionTick*.45)%(W*.9),0,6.28);x.stroke();}}}
+
+let hasSavedRun=false,abilityCooldown=0,abilityFlash=0;
+function loadCampaign(){try{const v=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(v&&v.level){campaign={...campaign,...v,upgrades:{...campaign.upgrades,...(v.upgrades||{})}};campaign.level=Math.max(1,Math.min(25,Number(campaign.level)||1));campaign.credits=Math.max(0,Number(campaign.credits)||0);campaign.ship=Math.max(0,Math.min(ships.length-1,Number(campaign.ship)||0));}}catch(e){}}
+function saveCampaign(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(campaign));}catch(e){}}
+function saveRun(){if(!run)return;try{const snap={version:32,level:campaign.level,score,frm,missionTick,phase,bossPending,spawnWave,px,nextB,bT,pl:{...pl},bul,msl,enm,ebul,pwr,prt,shk,txt,boss,abilityCooldown,abilityFlash};localStorage.setItem(RUN_KEY,JSON.stringify(snap));hasSavedRun=true;}catch(e){}}
+function clearSavedRun(){try{localStorage.removeItem(RUN_KEY);}catch(e){}hasSavedRun=false;}
+function readSavedRun(){try{const v=JSON.parse(localStorage.getItem(RUN_KEY)||'null');return v&&v.version===32&&v.level===campaign.level?v:null;}catch(e){return null;}}
+function cost(k){return 100+campaign.upgrades[k]*125;}
+function unlocked(s){return campaign.level>=s.unlock;}
+function drawShip(ctx,style,cx,cy,scale=1,glow=true){
+ ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);const ship=ships.find(q=>q.style===style)||ships[0],co=ship.color;
+ ctx.shadowBlur=glow?18:0;ctx.shadowColor=co;ctx.lineJoin='round';ctx.lineCap='round';
+ const poly=(pts,fill,stroke=co,w=2)=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=w;ctx.stroke();};
+ if(style==='vanguard'){
+  poly([[0,-43],[-10,-17],[-28,9],[-23,22],[-8,16],[0,23],[8,16],[23,22],[28,9],[10,-17]],'rgba(0,234,255,.20)');
+  poly([[-23,7],[-43,20],[-39,29],[-13,20]],'rgba(0,234,255,.12)');poly([[23,7],[43,20],[39,29],[13,20]],'rgba(0,234,255,.12)');
+  ctx.fillStyle='#d9ffff';ctx.fillRect(-17,-15,5,19);ctx.fillRect(12,-15,5,19);
+ }else if(style==='juggernaut'){
+  poly([[0,-35],[-18,-23],[-44,-5],[-48,20],[-22,15],[-16,29],[16,29],[22,15],[48,20],[44,-5],[18,-23]],'rgba(255,155,61,.22)');
+  poly([[-34,-2],[-54,-12],[-51,12],[-32,17]],'rgba(255,155,61,.18)');poly([[34,-2],[54,-12],[51,12],[32,17]],'rgba(255,155,61,.18)');
+  ctx.fillStyle='#fff0d7';ctx.fillRect(-31,-10,9,27);ctx.fillRect(22,-10,9,27);ctx.fillStyle=co;ctx.fillRect(-7,-26,14,39);
+ }else if(style==='phantom'){
+  poly([[0,-49],[-7,-18],[-17,-2],[-13,30],[0,21],[13,30],[17,-2],[7,-18]],'rgba(189,140,255,.20)');
+  poly([[-10,-3],[-35,11],[-24,19],[-9,13]],'rgba(189,140,255,.12)');poly([[10,-3],[35,11],[24,19],[9,13]],'rgba(189,140,255,.12)');
+  ctx.strokeStyle='#f2e8ff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-32);ctx.lineTo(0,13);ctx.stroke();
+ }else{
+  poly([[0,-46],[-13,-15],[-35,5],[-26,24],[-9,17],[0,29],[9,17],[26,24],[35,5],[13,-15]],'rgba(255,227,107,.20)');
+  poly([[-27,5],[-48,18],[-35,23],[-15,15]],'rgba(255,227,107,.15)');poly([[27,5],[48,18],[35,23],[15,15]],'rgba(255,227,107,.15)');
+  ctx.fillStyle='#fff8c9';ctx.beginPath();ctx.arc(0,-8,7,0,Math.PI*2);ctx.fill();
+ }
+ ctx.shadowBlur=0;ctx.fillStyle=co;ctx.globalAlpha=.8;ctx.beginPath();ctx.moveTo(-5,25);ctx.lineTo(0,43+Math.random()*5);ctx.lineTo(5,25);ctx.fill();ctx.globalAlpha=1;ctx.restore();
+}
+function drawShipPreview(){const cv=document.getElementById('shipPreview');if(!cv)return;const q=cv.getContext('2d');q.clearRect(0,0,cv.width,cv.height);q.fillStyle='rgba(4,8,20,.35)';q.fillRect(0,0,cv.width,cv.height);for(let i=0;i<28;i++){q.fillStyle='rgba(190,225,255,.5)';q.fillRect((i*83)%cv.width,(i*47)%cv.height,2,2);}drawShip(q,ships[campaign.ship].style,cv.width/2,91,1.05,true);q.fillStyle=ships[campaign.ship].color;q.font='bold 12px sans-serif';q.textAlign='center';q.fillText(ships[campaign.ship].weapon.toUpperCase(),cv.width/2,166);}
+function updateHub(){
+ const lv=Math.min(25,campaign.level),sector=Math.ceil(lv/5),names=SECTORS.map(s=>s.name);
+ document.getElementById('credits').textContent=campaign.credits;document.getElementById('missionNum').textContent=String(lv).padStart(2,'0');document.getElementById('hubBest').textContent=best;
+ document.getElementById('sectorName').textContent='SECTOR '+sector+' — '+names[sector-1];document.getElementById('missionDesc').textContent='Mission '+lv+' of 25 • '+Math.round(missionDuration()/3600)+' minute target • Three battle phases and an original sector commander.';
+ const track=document.getElementById('levelTrack');track.innerHTML='';for(let i=Math.max(1,(sector-1)*5+1);i<=sector*5;i++){const d=document.createElement('div');d.className='levelDot'+(i<campaign.level?' done':i===campaign.level?' current':'');d.textContent=i<campaign.level?'✓':i;d.title=i<campaign.level?'Completed':'Mission '+i;track.appendChild(d);}
+ const ship=ships[campaign.ship]||ships[0];document.getElementById('shipName').textContent=ship.name;document.getElementById('shipDesc').textContent=ship.desc;
+ document.getElementById('shipStatus').textContent=unlocked(ship)?'SELECTED • READY':'LOCKED • UNLOCKS AT MISSION '+ship.unlock;
+ document.getElementById('shipStats').innerHTML='<span class="shipStat">WEAPON: '+ship.weapon+'</span><span class="shipStat">ABILITY: '+ship.ability+'</span><span class="shipStat">UNLOCK: MISSION '+ship.unlock+'</span>';
+ for(const k of ['dmg','spd','shd','msl']){document.getElementById(k+'Lv').textContent=campaign.upgrades[k];const b=document.getElementById('buy'+k[0].toUpperCase()+k.slice(1));b.textContent='UPGRADE · '+cost(k)+' CR';b.disabled=campaign.credits<cost(k)||campaign.upgrades[k]>=5;b.style.opacity=b.disabled?'.45':'1';}
+ document.getElementById('shipCycle').textContent='NEXT SHIP ›';const rb=document.getElementById('resumeBtn');rb.classList.toggle('hidden',!readSavedRun());drawShipPreview();
+}
+function showHub(){run=false;document.getElementById('abilityBtn').classList.add('hidden');ov.classList.remove('hidden');document.getElementById('ti').textContent='NEON STARFIGHTER';document.getElementById('su').textContent='Your campaign begins at the edge of known space. Clear each mission, defeat its boss, and unlock the next frontier.';btn.textContent='LAUNCH MISSION';updateHub();}
+function buyUpgrade(k){const price=cost(k);if(campaign.credits<price||campaign.upgrades[k]>=5)return;campaign.credits-=price;campaign.upgrades[k]++;saveCampaign();updateHub();}
+function cycleShip(){let i=campaign.ship;for(let n=0;n<ships.length;n++){i=(i+1)%ships.length;if(unlocked(ships[i])){campaign.ship=i;saveCampaign();updateHub();return;}}document.getElementById('shipStatus').textContent='NEXT SHIP UNLOCKS AT MISSION '+ships.find(s=>!unlocked(s)).unlock;}
+function completeMission(){
+ run=false;document.getElementById('abilityBtn').classList.add('hidden');clearSavedRun();const reward=250+campaign.level*75;campaign.credits+=reward;const done=campaign.level;campaign.level=Math.min(25,campaign.level+1);saveCampaign();bHud.classList.add('hidden');warn.classList.add('hidden');
+ document.getElementById('ti').textContent=done===25?'GALAXY SAVED!':'MISSION COMPLETE!';document.getElementById('su').textContent=done===25?'You cleared the entire Galactic Frontier. Your campaign is complete!':'Mission '+done+' cleared! You earned '+reward+' credits. Mission '+campaign.level+' is now unlocked.';
+ btn.textContent=done===25?'RETURN TO HANGAR':'CONTINUE';document.getElementById('home').querySelectorAll('.panel').forEach(p=>p.style.display='none');document.getElementById('missionActions').innerHTML='<button id="btn" type="button">'+(done===25?'RETURN TO HANGAR':'CONTINUE CAMPAIGN')+'</button>';
+ document.getElementById('btn').addEventListener('click',()=>{restoreHubPanels();showHub();});ov.classList.remove('hidden');
+}
+function restoreHubPanels(){document.querySelectorAll('#home .panel').forEach(p=>p.style.display='');document.getElementById('missionActions').innerHTML='<button id="btn" type="button">LAUNCH MISSION</button><button id="resumeBtn" class="hidden" type="button">RESUME SAVED MISSION</button><button class="smallBtn secondary" id="resetSave" type="button">RESET CAMPAIGN</button>';document.getElementById('btn').addEventListener('click',start);document.getElementById('resumeBtn').addEventListener('click',resumeRun);document.getElementById('resetSave').addEventListener('click',resetCampaign);}
+function resetCampaign(){if(!confirm('Reset campaign progress, ships, upgrades, and saved mission? This cannot be undone.'))return;campaign={level:1,credits:0,ship:0,upgrades:{dmg:0,spd:0,shd:0,msl:0}};clearSavedRun();saveCampaign();restoreHubPanels();showHub();}
+loadCampaign();
+
 function bp(f1,f2,d,t,v){if(!ac)return;try{const o=ac.createOscillator(),g=ac.createGain();o.type=t||'sawtooth';o.frequency.setValueAtTime(f1,ac.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(20,f2),ac.currentTime+d);g.gain.setValueAtTime(v||.04,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d);}catch(e){}}
 function sp(cx){if(typeof cx==='number'&&!isNaN(cx)){const r=c.getBoundingClientRect();px=Math.max(28,Math.min(W-28,cx-r.left));}}
 c.addEventListener('touchstart',e=>{if(e.touches.length){drag=true;sp(e.touches.item(0).clientX);}},{passive:true});
@@ -67,36 +215,50 @@ function sy(tx,ty,str,col){txt.push({x:tx,y:ty,t:str,c:col||'#00f0ff',l:45,m:45}
 function rg(rx,ry,col,mr){shk.push({x:rx,y:ry,r:8,mr:mr||75,c:col,l:20,m:20});}
 function lc(l){return l>=9?'#ff2a85':l>=6?'#facc15':l>=3?'#00ff88':'#00f0ff';}
 function pd(){return 18*Math.pow(pl.dmg,.72);}
-function hp(a){if(pl.inv>0)return;pl.shd-=a;pl.inv=28;shkA=10;bp(140,50,.2,'sawtooth',.07);bm(pl.x,pl.y,'#ff3355',14);hud();if(pl.shd<=0){run=false;bHud.classList.add('hidden');warn.classList.add('hidden');document.getElementById('ti').textContent='MISSION FAILED';document.getElementById('su').innerHTML='Final: <b>'+Math.floor(score)+'</b> • Best: <b>'+best+'</b>';btn.textContent='PLAY AGAIN';ov.classList.remove('hidden');}}
-function fr(){const d=pd(),col=lc(pl.dmg),s=16+Math.min(7,pl.spd*.8),w=Math.min(6,3+pl.dmg*.3);bp(650-Math.min(200,pl.dmg*12),210,.05,'sawtooth',.02);bul.push({x:pl.x-12,y:pl.y-10,py:pl.y+6,vy:-s,d:d,c:col,w:w});bul.push({x:pl.x+12,y:pl.y-10,py:pl.y+6,vy:-s,d:d,c:col,w:w});if(pl.dmg>=3){bul.push({x:pl.x,y:pl.y-20,py:pl.y-2,vy:-s*1.04,d:d*.85,c:'#ffffff',w:w+1});}}
+function hp(a){if(pl.inv>0)return;pl.shd-=a;pl.inv=28;shkA=10;bp(140,50,.2,'sawtooth',.07);bm(pl.x,pl.y,'#ff3355',14);hud();if(pl.shd<=0){run=false;clearSavedRun();document.getElementById('abilityBtn').classList.add('hidden');bHud.classList.add('hidden');warn.classList.add('hidden');document.getElementById('ti').textContent='MISSION FAILED';document.getElementById('su').innerHTML='Final: <b>'+Math.floor(score)+'</b> • Best: <b>'+best+'</b>';restoreHubPanels();document.getElementById('btn').textContent='PLAY AGAIN';ov.classList.remove('hidden');}}
+function fr(){const ship=ships[campaign.ship]||ships[0],d=pd(),s=16+Math.min(7,pl.spd*.8),w=Math.min(6,3+pl.dmg*.3),co=ship.color;
+ if(ship.style==='juggernaut'){for(const side of [-1,1])bul.push({x:pl.x+side*15,y:pl.y-10,py:pl.y+7,vy:-s*.78,d:d*1.55,c:'#ff9b3d',w:w+3,kind:'heavy'});}
+ else if(ship.style==='phantom'){bul.push({x:pl.x,y:pl.y-18,py:pl.y+5,vy:-s*1.35,d:d*1.18,c:'#bd8cff',w:w+2,kind:'lance'});}
+ else if(ship.style==='solaris'){bul.push({x:pl.x,y:pl.y-23,py:pl.y+8,vy:-s*.92,d:d*1.32,c:'#ffe36b',w:w+4,kind:'solar',pierce:2});}
+ else{bul.push({x:pl.x-12,y:pl.y-10,py:pl.y+6,vy:-s,d,c:co,w});bul.push({x:pl.x+12,y:pl.y-10,py:pl.y+6,vy:-s,d,c:co,w});if(pl.dmg>=3)bul.push({x:pl.x,y:pl.y-20,py:pl.y-2,vy:-s*1.04,d:d*.85,c:'#ffffff',w:w+1});}
+ bp(ship.style==='juggernaut'?260:ship.style==='phantom'?880:ship.style==='solaris'?430:650,210,.05,'sawtooth',.02);
+}
+function useAbility(){if(!run||abilityCooldown>0)return;const ship=ships[campaign.ship];abilityCooldown=ship.style==='phantom'?420:600;abilityFlash=55;
+ if(ship.style==='vanguard'){pl.shd=Math.min(100,pl.shd+28);pl.inv=75;rg(pl.x,pl.y,'#00eaff',150);bm(pl.x,pl.y,'#00eaff',28,1.5);sy(pl.x,pl.y-42,'NOVA GUARD','#00eaff');}
+ else if(ship.style==='juggernaut'){const radius=190;enm.slice().forEach(e=>{if(Math.hypot(e.x-pl.x,e.y-pl.y)<radius){score+=(ENEMY_TYPES[e.t]||ENEMY_TYPES.i).points;bm(e.x,e.y,'#ff9b3d',18,1.3);enm.splice(enm.indexOf(e),1);}});ebul=[];rg(pl.x,pl.y,'#ff9b3d',radius);shkA=13;sy(pl.x,pl.y-48,'BULWARK BLAST','#ff9b3d');}
+ else if(ship.style==='phantom'){pl.inv=150;pl.x=Math.max(35,Math.min(W-35,pl.x+(pl.x<W/2?150:-150)));px=pl.x;ebul=[];rg(pl.x,pl.y,'#bd8cff',125);sy(pl.x,pl.y-42,'PHASE SHIFT','#bd8cff');}
+ else{const d=pd()*9;bul.push({x:pl.x,y:pl.y-25,py:pl.y+10,vy:-25,d,c:'#fff3a6',w:12,kind:'flare',pierce:5});rg(pl.x,pl.y-100,'#ffe36b',180);shkA=8;sy(pl.x,pl.y-48,'SOLAR FLARE','#ffe36b');}
+ document.getElementById('abilityBtn').textContent=ship.ability+' • READY';hud();
+}
 function fm(){const cnt=Math.min(5,pl.msl),d=pd()*2.1;bp(320,120,.1,'triangle',.035);for(let i=0;i<cnt;i++){const s=i%2===0?-1:1,a=-1.57+s*(.26+Math.floor(i/2)*.16);msl.push({x:pl.x+s*14,y:pl.y-6,vx:Math.cos(a)*8,vy:Math.sin(a)*8,d,tr:[]});}}
-function wb(){warn.classList.remove('hidden');bp(140,95,.4,'sawtooth',.07);enm.forEach(e=>bm(e.x,e.y,e.c,10));enm=[];ebul=[];setTimeout(()=>{if(!run)return;warn.classList.add('hidden');bT++;const pf=pd()*(1+pl.spd*.12)*(1+pl.msl*.18),ch=Math.max(900,pf*(26+bT*5)),th=Math.max(380,pf*(11+bT*2.5));bName.textContent='DREADNOUGHT MK-'+bT+' [SHIELDED]';bHud.classList.remove('hidden');bFill.style.width='100%';boss={x:W/2,y:-100,ty:130,vx:1.8+Math.min(1.5,bT*.2),hp:ch,mh:ch,lt:{hp:th,mh:th,ox:-66,oy:12},rt:{hp:th,mh:th,ox:66,oy:12},shd:true,at:80,bc:0,ba:0,t:bT};},2000);}
-function kb(){const bx=boss.x,by=boss.y,bn=5000*boss.t;bm(bx,by,'#ff2a85',45,1.8);rg(bx,by,'#ff2a85',170);bp(160,35,.6,'sawtooth',.09);shkA=18;score+=bn;sy(bx,by,'BOSS DESTROYED +'+bn,'#facc15');nextB=score+18000;pwr.push({x:bx-36,y:by,t:'dmg',l:'DMG',c:'#00f0ff'},{x:bx,y:by+12,t:'shd',l:'+SHD',c:'#00ff88'},{x:bx+36,y:by,t:'msl',l:'MSL',c:'#ff8800'});boss=null;bHud.classList.add('hidden');hud();}
-function ke(i){const e=enm.at(i);bm(e.x,e.y,e.c,14);bp(220,65,.12,'square',.03);score+=e.t==='c'?750:e.t==='s'?400:250;hud();if(Math.random()<.26){const r=Math.random(),d=r>.76?{t:'shd',l:'+SHD',c:'#00ff88'}:r>.54?{t:'msl',l:'MSL',c:'#ff8800'}:r>.28?{t:'spd',l:'SPD',c:'#facc15'}:{t:'dmg',l:'DMG',c:'#00f0ff'};pwr.push({x:e.x,y:e.y,...d});}enm.splice(i,1);}
+function wb(){if(boss||bossPending)return;bossPending=120;setPhase(2);warn.classList.remove('hidden');warn.firstChild.textContent='WARNING: '+bossTitle();enm.forEach(e=>bm(e.x,e.y,e.c,8));enm=[];ebul=[];bp(140,95,.4,'sawtooth',.07);}
+function spawnBoss(){warn.classList.add('hidden');bossPending=0;bT++;const sec=sectorIndex(),major=campaign.level%5===0;const strength=1+(campaign.level-1)*.11;const ch=(major?1400:850)*strength,th=(major?400:230)*strength;bName.textContent=bossTitle()+(major?' • SECTOR FLAGSHIP':' • COMMANDER')+' [SHIELDED]';bHud.classList.remove('hidden');bFill.style.width='100%';boss={x:W/2,y:-110,ty:125,vx:(major?2.5:1.8)+sec*.24,hp:ch,mh:ch,lt:{hp:th,mh:th,ox:-66,oy:12},rt:{hp:th,mh:th,ox:66,oy:12},shd:true,at:90,bc:0,ba:0,t:bT,sec,major};}
+function kb(){const bx=boss.x,by=boss.y,bn=5000*boss.t;bm(bx,by,'#ff2a85',45,1.8);rg(bx,by,'#ff2a85',170);bp(160,35,.6,'sawtooth',.09);shkA=18;score+=bn;sy(bx,by,'BOSS DESTROYED +'+bn,'#facc15');boss=null;bHud.classList.add('hidden');hud();completeMission();}
+function ke(i){const e=enm.at(i);bm(e.x,e.y,e.c,14);bp(220,65,.12,'square',.03);score+=(ENEMY_TYPES[e.t]||ENEMY_TYPES.i).points;hud();if(Math.random()<.26){const r=Math.random(),d=r>.76?{t:'shd',l:'+SHD',c:'#00ff88'}:r>.54?{t:'msl',l:'MSL',c:'#ff8800'}:r>.28?{t:'spd',l:'SPD',c:'#facc15'}:{t:'dmg',l:'DMG',c:'#00f0ff'};pwr.push({x:e.x,y:e.y,...d});}enm.splice(i,1);}
 function loop(){
-  if(!run)return;frm++;x.save();
+  if(!run)return;frm++;missionTick++;document.getElementById('abilityBtn').classList.remove('hidden');document.getElementById('abilityBtn').textContent=abilityCooldown>0?'SPECIAL • '+Math.ceil(abilityCooldown/60)+'s':'SPECIAL • READY';if(abilityCooldown>0)abilityCooldown--;if(abilityFlash>0)abilityFlash--;if(frm%300===0)saveRun();x.save();
   if(shkA>0){x.translate((Math.random()-.5)*shkA,(Math.random()-.5)*shkA);shkA*=.85;if(shkA<.5)shkA=0;}
-  x.clearRect(0,0,W,H);
+  x.clearRect(0,0,W,H);drawEnvironment();
   x.fillStyle='rgba(180,220,255,.45)';st.forEach(s=>{s.y+=s.v;if(s.y>H){s.y=0;s.x=Math.random()*W;}x.fillRect(s.x,s.y,s.s,s.s);});
   pl.x+=(px-pl.x)*Math.min(.45,.22+(pl.spd-1)*.03);if(pl.inv>0)pl.inv--;
   if(frm%Math.max(6,13-Math.floor((pl.spd-1)*.9))===0)fr();
   if(pl.msl>0&&frm%36===0)fm();
-  if(!boss&&warn.classList.contains('hidden')&&score>=nextB)wb();
-  if(!boss&&warn.classList.contains('hidden')&&frm%Math.max(24,Math.floor(55-score/12000))===0){
-    const sf=1+(pl.dmg-1)*.42+score/45000,r=Math.random(),t=r>.74?'c':r>.42?'s':'i';
-    enm.push({x:Math.random()*(W-80)+40,y:-35,hp:(t==='c'?82:t==='s'?42:26)*sf,mh:(t==='c'?82:t==='s'?42:26)*sf,sp:(2.6+Math.min(2.2,score/90000))*(t==='c'?.65:t==='s'?1.05:1),r:t==='c'?24:t==='s'?19:17,c:t==='c'?'#a855f7':t==='s'?'#facc15':'#ff2a85',t,ph:Math.random()*6.28,wv:t==='c'?.5:t==='s'?2.3:1.6,st:50+Math.floor(Math.random()*50)});
-  }
+  if(!boss&&phase<2&&missionTick>=Math.round(missionDuration()*.45))setPhase(1);
+  if(!boss&&phase<2&&missionTick>=Math.round(missionDuration()*.79))wb();
+  if(bossPending>0&&--bossPending===0)spawnBoss();
+  updateMissionHud();
+  if(!boss&&!bossPending&&frm%Math.max(36,Math.floor(100-campaign.level*1.6-(phase===1?16:0)))===0)wave();
   for(let i=bul.length-1;i>=0;i--){
     const b=bul.at(i);b.py=b.y;b.y+=b.vy;if(b.y<-25){bul.splice(i,1);continue;}
-    x.save();x.strokeStyle=b.c;x.lineWidth=b.w+3;x.shadowBlur=14;x.shadowColor=b.c;x.beginPath();x.moveTo(b.x,b.py);x.lineTo(b.x,b.y);x.stroke();
+    x.save();x.strokeStyle=b.c;x.lineWidth=b.w+3;x.shadowBlur=b.kind==='heavy'?22:14;x.shadowColor=b.c;x.beginPath();x.moveTo(b.x,b.py);x.lineTo(b.x,b.y);x.stroke();
     x.strokeStyle='#ffffff';x.lineWidth=Math.max(1.5,b.w*.45);x.beginPath();x.moveTo(b.x,b.py);x.lineTo(b.x,b.y);x.stroke();x.restore();
     let hit=false;
     if(boss&&boss.y>=boss.ty-10){
       [boss.lt,boss.rt].forEach(t=>{if(!hit&&t.hp>0&&Math.hypot(boss.x+t.ox-b.x,boss.y+t.oy-b.y)<19){t.hp-=b.d;hit=true;bm(b.x,b.y,'#facc15',4,.6);if(t.hp<=0){bm(boss.x+t.ox,boss.y+t.oy,'#facc15',22,1.3);rg(boss.x+t.ox,boss.y+t.oy,'#facc15',65);sy(boss.x+t.ox,boss.y+t.oy,'TURRET DOWN!','#facc15');score+=1000;hud();}}});
       if(!hit&&Math.abs(b.x-boss.x)<55&&Math.abs(b.y-boss.y)<35){hit=true;if(boss.shd){bm(b.x,b.y+15,'#00f0ff',3,.5);if(frm%18===0)sy(boss.x,boss.y+52,'SHIELDED - HIT TURRETS!','#00f0ff');}else{boss.hp-=b.d;bm(b.x,b.y,'#ff2a85',4,.6);if(boss.hp<=0)kb();}}
     }
-    if(hit){bul.splice(i,1);continue;}
-    for(let j=enm.length-1;j>=0;j--){const e=enm.at(j);if(Math.hypot(e.x-b.x,e.y-b.y)<e.r+8){e.hp-=b.d;bul.splice(i,1);if(e.hp<=0)ke(j);break;}}
+    if(hit){if(b.pierce>0){b.pierce--;b.y-=18;b.py=b.y+18;}else bul.splice(i,1);continue;}
+    for(let j=enm.length-1;j>=0;j--){const e=enm.at(j);if(Math.hypot(e.x-b.x,e.y-b.y)<e.r+8){e.hp-=b.d*(e.t==='f'&&b.kind!=='flare'?.65:1);if(b.pierce>0){b.pierce--;b.y-=18;b.py=b.y+18;}else bul.splice(i,1);if(e.hp<=0)ke(j);break;}}
   }
   for(let i=msl.length-1;i>=0;i--){
     const m=msl.at(i);m.tr.push({x:m.x,y:m.y});if(m.tr.length>6)m.tr.shift();
@@ -112,29 +274,29 @@ function loop(){
   }
   if(boss){
     if(boss.y<boss.ty)boss.y+=2;else{
-      if(boss.shd&&boss.lt.hp<=0&&boss.rt.hp<=0){boss.shd=false;boss.vx*=1.45;shkA=14;rg(boss.x,boss.y,'#00f0ff',130);sy(boss.x,boss.y+55,'SHIELD BROKEN!','#00f0ff');bName.textContent='DREADNOUGHT MK-'+boss.t+' [CORE EXPOSED]';}
+      if(boss.shd&&boss.lt.hp<=0&&boss.rt.hp<=0){boss.shd=false;boss.vx*=1.45;shkA=14;rg(boss.x,boss.y,'#00f0ff',130);sy(boss.x,boss.y+55,'SHIELD BROKEN!','#00f0ff');bName.textContent=bossTitle()+' [CORE EXPOSED]';}
       boss.x+=boss.vx;if(boss.x<100||boss.x>W-100)boss.vx*=-1;
       bFill.style.width=((Math.max(0,boss.hp)+Math.max(0,boss.lt.hp)+Math.max(0,boss.rt.hp))/(boss.mh+boss.lt.mh+boss.rt.mh)*100)+'%';
       if(boss.bc>0){boss.bc--;if(boss.bc===0)boss.ba=45;}else if(boss.ba>0){boss.ba--;if(Math.abs(pl.x-boss.x)<25)hp(18);}else if(--boss.at<=0){
-        const p2=!boss.shd;if(Math.random()<(p2?.42:.3)){boss.bc=p2?45:55;boss.at=p2?105:130;}else{boss.at=p2?55:80;const src=[{x:boss.x,y:boss.y+40}];if(boss.lt.hp>0)src.push({x:boss.x+boss.lt.ox,y:boss.y+boss.lt.oy+12});if(boss.rt.hp>0)src.push({x:boss.x+boss.rt.ox,y:boss.y+boss.rt.oy+12});src.forEach(s=>{const ba=Math.atan2(pl.y-s.y,pl.x-s.x);(p2?[-.24,0,.24]:[-.16,.16]).forEach(o=>ebul.push({x:s.x,y:s.y,vx:Math.cos(ba+o)*5.2,vy:Math.sin(ba+o)*5.2}));});}
+        const p2=!boss.shd;if(Math.random()<(p2?.35:.25)){boss.bc=p2?45:55;boss.at=p2?105:130;}else{boss.at=p2?Math.max(40,72-boss.sec*5):Math.max(65,100-boss.sec*5);const src=[{x:boss.x,y:boss.y+40}];if(boss.lt.hp>0)src.push({x:boss.x+boss.lt.ox,y:boss.y+boss.lt.oy+12});if(boss.rt.hp>0)src.push({x:boss.x+boss.rt.ox,y:boss.y+boss.rt.oy+12});src.forEach(s=>{const ba=Math.atan2(pl.y-s.y,pl.x-s.x);(p2?[-.24,0,.24]:[-.16,.16]).forEach(o=>ebul.push({x:s.x,y:s.y,vx:Math.cos(ba+o)*5.2,vy:Math.sin(ba+o)*5.2}));});}
       }
     }
     x.save();x.translate(boss.x,boss.y);
     if(boss.bc>0){x.strokeStyle='rgba(255,42,133,.7)';x.lineWidth=2.5;x.beginPath();x.moveTo(0,35);x.lineTo(0,H);x.stroke();}
     else if(boss.ba>0){x.fillStyle='rgba(255,42,133,.35)';x.fillRect(-24,35,48,H);x.fillStyle='#fff';x.fillRect(-8,35,16,H);}
-    x.strokeStyle='#ff2a85';x.lineWidth=3;x.shadowBlur=16;x.shadowColor='#ff2a85';x.fillStyle='rgba(255,42,133,.15)';
-    x.beginPath();x.moveTo(0,46);x.lineTo(-36,26);x.lineTo(-92,16);x.lineTo(-82,-24);x.lineTo(-32,-38);x.lineTo(32,-38);x.lineTo(82,-24);x.lineTo(92,16);x.lineTo(36,26);x.closePath();x.fill();x.stroke();
+    const bossColor=SECTORS[boss.sec].color;x.strokeStyle=bossColor;x.lineWidth=boss.major?4:3;x.shadowBlur=16;x.shadowColor=bossColor;x.fillStyle='rgba(255,42,133,.15)';
+    x.beginPath();const wing=72+boss.sec*7+(boss.major?12:0),nose=38+boss.sec*4;x.moveTo(0,48);x.lineTo(-32,24);x.lineTo(-wing,15);x.lineTo(-wing+10,-30);x.lineTo(-26,-38);x.lineTo(0,-nose);x.lineTo(26,-38);x.lineTo(wing-10,-30);x.lineTo(wing,15);x.lineTo(32,24);x.closePath();x.fill();x.stroke();x.beginPath();x.moveTo(-20,5);x.lineTo(0,-24);x.lineTo(20,5);x.closePath();x.stroke();if(boss.major){x.strokeRect(-24,-15,48,35);x.strokeRect(-wing+7,-8,22,30);x.strokeRect(wing-29,-8,22,30);}
     if(boss.shd){x.strokeStyle='#00f0ff';x.beginPath();x.arc(0,4,32,0,6.28);x.stroke();}
     [boss.lt,boss.rt].forEach(t=>{if(t.hp>0){x.strokeStyle='#facc15';x.beginPath();x.arc(t.ox,t.oy,15,0,6.28);x.stroke();}});
     x.restore();
   }
   for(let i=enm.length-1;i>=0;i--){
-    const e=enm.at(i);e.ph+=.045;e.y+=e.sp;e.x=Math.max(25,Math.min(W-25,e.x+Math.sin(e.ph)*e.wv));
-    if(e.y<pl.y-90&&--e.st<=0){e.st=95;const a=Math.atan2(pl.y-e.y,pl.x-e.x);ebul.push({x:e.x,y:e.y+e.r,vx:Math.cos(a)*4.6,vy:Math.sin(a)*4.6});}
+    const e=enm.at(i);e.ph+=e.t==='h'?.09:.045;e.y+=e.sp;if(e.t==='h')e.x+=(pl.x-e.x)*.008;e.x=Math.max(25,Math.min(W-25,e.x+Math.sin(e.ph)*e.wv));if(e.t==='a'&&frm%115===0&&enm.length<35)enm.push(createEnemy('d',e.x-12,e.y+20));
+    if(e.y<pl.y-90&&--e.st<=0){e.st=e.t==='n'?145:e.t==='b'?110:e.t==='h'?68:100;const a=Math.atan2(pl.y-e.y,pl.x-e.x);const offsets=e.t==='b'?[-.24,0,.24]:e.t==='h'?[-.12,.12]:[0];for(const o of offsets)ebul.push({x:e.x,y:e.y+e.r,vx:Math.cos(a+o)*(e.t==='n'?7:4.2),vy:Math.sin(a+o)*(e.t==='n'?7:4.2)});}
     x.save();x.translate(e.x,e.y);x.strokeStyle=e.c;x.lineWidth=2.2;x.shadowBlur=12;x.shadowColor=e.c;x.fillStyle='rgba(255,255,255,.08)';
     x.beginPath();
-    if(e.t==='i'){x.moveTo(0,e.r+4);x.lineTo(-e.r,-e.r);x.lineTo(-5,-e.r+7);x.lineTo(0,-e.r-2);x.lineTo(5,-e.r+7);x.lineTo(e.r,-e.r);}
-    else if(e.t==='s'){x.moveTo(-7,e.r+3);x.lineTo(-e.r,-4);x.lineTo(-9,-e.r);x.lineTo(0,-6);x.lineTo(9,-e.r);x.lineTo(e.r,-4);x.lineTo(7,e.r+3);x.lineTo(0,4);}
+    if(e.t==='i'||e.t==='d'||e.t==='h'){x.moveTo(0,e.r+4);x.lineTo(-e.r,-e.r);x.lineTo(-5,-e.r+7);x.lineTo(0,-e.r-2);x.lineTo(5,-e.r+7);x.lineTo(e.r,-e.r);}
+    else if(e.t==='s'||e.t==='n'){x.moveTo(-7,e.r+3);x.lineTo(-e.r,-4);x.lineTo(-9,-e.r);x.lineTo(0,-6);x.lineTo(9,-e.r);x.lineTo(e.r,-4);x.lineTo(7,e.r+3);x.lineTo(0,4);}
     else{x.moveTo(0,e.r+2);x.lineTo(-e.r,6);x.lineTo(-e.r+4,-e.r);x.lineTo(e.r-4,-e.r);x.lineTo(e.r,6);}
     x.closePath();x.fill();x.stroke();
     x.fillStyle='#fff';x.beginPath();x.arc(0,0,3,0,6.28);x.fill();x.restore();
@@ -162,19 +324,26 @@ function loop(){
   for(let i=shk.length-1;i>=0;i--){const s=shk.at(i);s.l--;x.save();x.strokeStyle=s.c;x.globalAlpha=s.l/s.m;x.lineWidth=3;x.beginPath();x.arc(s.x,s.y,s.r+(s.mr-s.r)*(1-s.l/s.m),0,6.28);x.stroke();x.restore();if(s.l<=0)shk.splice(i,1);}
   for(let i=prt.length-1;i>=0;i--){const p=prt.at(i);p.x+=p.vx;p.y+=p.vy;p.l--;x.globalAlpha=p.l/p.m;x.fillStyle=p.c;x.fillRect(p.x,p.y,3,3);x.globalAlpha=1;if(p.l<=0)prt.splice(i,1);}
   for(let i=txt.length-1;i>=0;i--){const t=txt.at(i);t.y-=1.1;t.l--;x.save();x.globalAlpha=t.l/t.m;x.fillStyle=t.c;x.font='bold 13px sans-serif';x.textAlign='center';x.fillText(t.t,t.x,t.y);x.restore();if(t.l<=0)txt.splice(i,1);}
-  if(pl.inv===0||frm%4<2){
-    x.save();x.translate(pl.x,pl.y);
-    const fh=12+Math.random()*10+pl.spd*1.2;
-    x.fillStyle=lc(pl.dmg);x.beginPath();x.moveTo(-6,14);x.lineTo(0,14+fh);x.lineTo(6,14);x.fill();
-    x.strokeStyle='#00f0ff';x.lineWidth=2.5;x.shadowBlur=14;x.shadowColor='#00f0ff';x.fillStyle='rgba(0,240,255,.15)';
-    x.beginPath();x.moveTo(0,-24);x.lineTo(-8,-6);x.lineTo(-22,12);x.lineTo(-10,16);x.lineTo(-5,11);x.lineTo(5,11);x.lineTo(10,16);x.lineTo(22,12);x.lineTo(8,-6);x.closePath();x.fill();x.stroke();
-    x.fillStyle='#fff';x.beginPath();x.moveTo(0,-10);x.lineTo(-3,2);x.lineTo(3,2);x.fill();
-    x.restore();
-  }
+  if(pl.inv===0||frm%4<2){const sh=ships[campaign.ship]||ships[0];drawShip(x,sh.style,pl.x,pl.y,.82,true);if(abilityFlash>0){x.save();x.globalAlpha=abilityFlash/55*.55;x.strokeStyle=sh.color;x.lineWidth=3;x.beginPath();x.arc(pl.x,pl.y,48+(55-abilityFlash)*1.2,0,6.28);x.stroke();x.restore();}}
   x.restore();requestAnimationFrame(loop);
 }
-function start(e){if(e)e.preventDefault();if(run)return;try{if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(A)ac=new A();}if(ac&&ac.state==='suspended')ac.resume();}catch(err){}ov.classList.add('hidden');score=0;frm=0;nextB=15000;bT=0;boss=null;bHud.classList.add('hidden');warn.classList.add('hidden');pl.x=W/2;px=W/2;pl.y=H-110;pl.shd=100;pl.dmg=1;pl.spd=1;pl.msl=0;pl.inv=0;bul=[];msl=[];enm=[];ebul=[];pwr=[];prt=[];shk=[];txt=[];hud();run=true;loop();}
-btn.addEventListener('click',start);btn.addEventListener('touchend',start);
+
+function resumeRun(){const snap=readSavedRun();if(!snap)return;restoreHubPanels();try{if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(A)ac=new A();}if(ac&&ac.state==='suspended')ac.resume();}catch(e){}score=snap.score||0;frm=snap.frm||0;missionTick=snap.missionTick||0;phase=snap.phase||0;bossPending=snap.bossPending||0;spawnWave=snap.spawnWave||0;px=snap.px||W/2;nextB=snap.nextB||15000;bT=snap.bT||0;Object.assign(pl,snap.pl||{});bul=snap.bul||[];msl=snap.msl||[];enm=snap.enm||[];ebul=snap.ebul||[];pwr=snap.pwr||[];prt=[];shk=[];txt=[];boss=snap.boss||null;abilityCooldown=snap.abilityCooldown||0;abilityFlash=0;pl.y=H-110;pl.x=Math.max(28,Math.min(W-28,pl.x));px=Math.max(28,Math.min(W-28,px));bHud.classList.toggle('hidden',!boss);warn.classList.toggle('hidden',!bossPending);ov.classList.add('hidden');hud();run=true;loop();}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&run)saveRun();});window.addEventListener('pagehide',()=>{if(run)saveRun();});
+
+function start(e){if(e)e.preventDefault();if(run)return;clearSavedRun();restoreHubPanels();try{if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(A)ac=new A();}if(ac&&ac.state==='suspended')ac.resume();}catch(err){}ov.classList.add('hidden');score=0;frm=0;missionTick=0;phase=0;bossPending=0;spawnWave=0;nextB=15000;bT=0;boss=null;bHud.classList.add('hidden');warn.classList.add('hidden');pl.x=W/2;px=W/2;pl.y=H-110;const ship=ships[campaign.ship]||ships[0];pl.shd=Math.min(100,100+campaign.upgrades.shd*8+ship.shield);pl.dmg=1+campaign.upgrades.dmg+ship.dmg;pl.spd=Math.max(1,Math.min(8,1+campaign.upgrades.spd+ship.spd));pl.msl=Math.min(5,campaign.upgrades.msl+ship.msl);pl.inv=0;abilityCooldown=0;abilityFlash=0;bul=[];msl=[];enm=[];ebul=[];pwr=[];prt=[];shk=[];txt=[];hud();run=true;loop();}
+btn.addEventListener('click',start);
+document.getElementById('shipCycle').addEventListener('click',cycleShip);
+document.getElementById('abilityBtn').addEventListener('click',useAbility);
+document.getElementById('resumeBtn').addEventListener('click',resumeRun);
+document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();useAbility();}});
+document.getElementById('buyDmg').addEventListener('click',()=>buyUpgrade('dmg'));
+document.getElementById('buySpd').addEventListener('click',()=>buyUpgrade('spd'));
+document.getElementById('buyShd').addEventListener('click',()=>buyUpgrade('shd'));
+document.getElementById('buyMsl').addEventListener('click',()=>buyUpgrade('msl'));
+document.getElementById('resetSave').addEventListener('click',resetCampaign);
+document.getElementById('resumeBtn').addEventListener('click',resumeRun);
+showHub();
 </script>
 </body>
 </html>
