@@ -38,7 +38,7 @@ button{background:linear-gradient(135deg,#00f0ff,#0077ff);border:none;padding:18
   <h1 id="ti">NEON STARFIGHTER</h1>
   <p id="su">Touch & drag to weave through enemy fire.<br>Level up weapons & dismantle shielded Dreadnought bosses!</p>
   <button id="btn" type="button">LAUNCH MISSION</button>
-  <div id="legal"><strong style="color:#94a3b8">© 2026 Nosidom-Dev. All Rights Reserved.</strong><br>This game and its source code belong exclusively to Nosidom-Dev and may not be copied, re-uploading, or sharing without explicit permission.</div>
+  <div id="legal"><strong style="color:#94a3b8">© 2026 Nosidom-Dev. All Rights Reserved.</strong><br>This game and its source code belong exclusively to Nosidom-Dev and may not be copied, re-uploaded, or sharing without explicit permission.</div>
 </div>
 <script>
 // Copyright (c) 2026 Nosidom-Dev. All Rights Reserved.
@@ -68,7 +68,7 @@ function rg(rx,ry,col,mr){shk.push({x:rx,y:ry,r:8,mr:mr||75,c:col,l:20,m:20});}
 function lc(l){return l>=9?'#ff2a85':l>=6?'#facc15':l>=3?'#00ff88':'#00f0ff';}
 function pd(){return 18*Math.pow(pl.dmg,.72);}
 function hp(a){if(pl.inv>0)return;pl.shd-=a;pl.inv=28;shkA=10;bp(140,50,.2,'sawtooth',.07);bm(pl.x,pl.y,'#ff3355',14);hud();if(pl.shd<=0){run=false;bHud.classList.add('hidden');warn.classList.add('hidden');document.getElementById('ti').textContent='MISSION FAILED';document.getElementById('su').innerHTML='Final: <b>'+Math.floor(score)+'</b> • Best: <b>'+best+'</b>';btn.textContent='PLAY AGAIN';ov.classList.remove('hidden');}}
-function fr(){const d=pd(),col=lc(pl.dmg),s=16+Math.min(7,pl.spd*.8),w=Math.min(5.5,2.6+pl.dmg*.25);bp(650-Math.min(200,pl.dmg*12),210,.05,'sawtooth',.02);bul.push({x:pl.x-11,y:pl.y-12,py:pl.y-12,vy:-s,d,c:col,w},{x:pl.x+11,y:pl.y-12,py:pl.y-12,vy:-s,d,c:col,w});if(pl.dmg>=3)bul.push({x:pl.x,y:pl.y-22,py:pl.y-22,vy:-s*1.04,d:d*.85,c:'#fff',w:w+.8});}
+function fr(){const d=pd(),col=lc(pl.dmg),s=16+Math.min(7,pl.spd*.8),w=Math.min(6,3+pl.dmg*.3);bp(650-Math.min(200,pl.dmg*12),210,.05,'sawtooth',.02);bul.push({x:pl.x-12,y:pl.y-10,py:pl.y+6,vy:-s,d:d,c:col,w:w});bul.push({x:pl.x+12,y:pl.y-10,py:pl.y+6,vy:-s,d:d,c:col,w:w});if(pl.dmg>=3){bul.push({x:pl.x,y:pl.y-20,py:pl.y-2,vy:-s*1.04,d:d*.85,c:'#ffffff',w:w+1});}}
 function fm(){const cnt=Math.min(5,pl.msl),d=pd()*2.1;bp(320,120,.1,'triangle',.035);for(let i=0;i<cnt;i++){const s=i%2===0?-1:1,a=-1.57+s*(.26+Math.floor(i/2)*.16);msl.push({x:pl.x+s*14,y:pl.y-6,vx:Math.cos(a)*8,vy:Math.sin(a)*8,d,tr:[]});}}
 function wb(){warn.classList.remove('hidden');bp(140,95,.4,'sawtooth',.07);enm.forEach(e=>bm(e.x,e.y,e.c,10));enm=[];ebul=[];setTimeout(()=>{if(!run)return;warn.classList.add('hidden');bT++;const pf=pd()*(1+pl.spd*.12)*(1+pl.msl*.18),ch=Math.max(900,pf*(26+bT*5)),th=Math.max(380,pf*(11+bT*2.5));bName.textContent='DREADNOUGHT MK-'+bT+' [SHIELDED]';bHud.classList.remove('hidden');bFill.style.width='100%';boss={x:W/2,y:-100,ty:130,vx:1.8+Math.min(1.5,bT*.2),hp:ch,mh:ch,lt:{hp:th,mh:th,ox:-66,oy:12},rt:{hp:th,mh:th,ox:66,oy:12},shd:true,at:80,bc:0,ba:0,t:bT};},2000);}
 function kb(){const bx=boss.x,by=boss.y,bn=5000*boss.t;bm(bx,by,'#ff2a85',45,1.8);rg(bx,by,'#ff2a85',170);bp(160,35,.6,'sawtooth',.09);shkA=18;score+=bn;sy(bx,by,'BOSS DESTROYED +'+bn,'#facc15');nextB=score+18000;pwr.push({x:bx-36,y:by,t:'dmg',l:'DMG',c:'#00f0ff'},{x:bx,y:by+12,t:'shd',l:'+SHD',c:'#00ff88'},{x:bx+36,y:by,t:'msl',l:'MSL',c:'#ff8800'});boss=null;bHud.classList.add('hidden');hud();}
@@ -88,7 +88,8 @@ function loop(){
   }
   for(let i=bul.length-1;i>=0;i--){
     const b=bul.at(i);b.py=b.y;b.y+=b.vy;if(b.y<-25){bul.splice(i,1);continue;}
-    x.save();x.strokeStyle=b.c;x.lineWidth=b.w;x.shadowBlur=10;x.shadowColor=b.c;x.beginPath();x.moveTo(b.px,b.py);x.lineTo(b.x,b.y);x.stroke();x.restore();
+    x.save();x.strokeStyle=b.c;x.lineWidth=b.w+3;x.shadowBlur=14;x.shadowColor=b.c;x.beginPath();x.moveTo(b.x,b.py);x.lineTo(b.x,b.y);x.stroke();
+    x.strokeStyle='#ffffff';x.lineWidth=Math.max(1.5,b.w*.45);x.beginPath();x.moveTo(b.x,b.py);x.lineTo(b.x,b.y);x.stroke();x.restore();
     let hit=false;
     if(boss&&boss.y>=boss.ty-10){
       [boss.lt,boss.rt].forEach(t=>{if(!hit&&t.hp>0&&Math.hypot(boss.x+t.ox-b.x,boss.y+t.oy-b.y)<19){t.hp-=b.d;hit=true;bm(b.x,b.y,'#facc15',4,.6);if(t.hp<=0){bm(boss.x+t.ox,boss.y+t.oy,'#facc15',22,1.3);rg(boss.x+t.ox,boss.y+t.oy,'#facc15',65);sy(boss.x+t.ox,boss.y+t.oy,'TURRET DOWN!','#facc15');score+=1000;hud();}}});
